@@ -1,98 +1,145 @@
+<!-- 뷰 라우터와 HTTP 통신 -->
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Hello Vue.js</title>
-        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.js"></script>
-    </head>
-    <body>
-        <div id="app">  <!-- 인스턴스의 유효범위 -->
-            <h3>첫 번째 인스턴스 영역</h3>
-            <my-global-component></my-global-component>
-            <my-local-component></my-local-component>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale1.0">
+    <title>Vue Router Sample</title>
+</head>
+<body>
+    <!-- 뷰 라우터 -->
+    <!--<div id="app">
+        <h1>뷰 라우터 예제</h1>
+        <p>
+            <router-link to="/main">Main 컴포넌트로 이동</router-link>
+            <router-link to="/login">Login 컴포넌트로 이동</router-link>
+        </p>
+        <router-view></router-view>
+    </div>
+    <hr>-->
+    <!-- nested 라우터 -->
+    <!--<div id="app2">
+        <h1>네스티드 라우터 예제</h1>
+        <router-view></router-view>
+    </div>
+    <hr>-->
 
-            <child-component v-bind:propsdata="message"></child-component>
-            <child-local-component v-on:show-log="printText"></child-local-component>
-            <child-global-component></child-global-component>
-        </div>
-        <hr>
-        <div id="app2">
-            <h3>두 번째 인스턴스 영역</h3>
-            <my-global-component></my-global-component>
-            <my-local-component></my-local-component>
-        </div>
-        <!--<script src="/js/main.js"></script>-->
-        <script>
-            Vue.component('my-global-component', {
-                template: '<div>전역 컴포넌트가 등록되었습니다!</div>'
-            })
+    <!-- 네임드 뷰-->
+    <div id="app3">
+        <router-view name="header"></router-view>       <!-- 라우터 영역 정리-->
+        <router-view></router-view>
+        <router-view name="footer"></router-view>
+    </div>
+    <hr>
 
-            // 하위 컴포넌트
-            Vue.component('child-component', {
-                props: ['propsdata'],
-                template: '<p>{{ propsdata }}</p>'
-            })
+    <div id="app4">
+        <button v-on:click="getData">프레임워크 목록 가져오기</button>
+    </div>
 
-            var eventBus = new Vue();
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router@3.0.1/dist/vue-router.js"></script>   <!-- 라우터 CDN 추가 -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-            Vue.component('child-global-component', {
-                template: '<div>하위 컴포넌트 영역입니다.<button v-on:click="showLog">show</button></div>',
-                methods: {
-                    // 이벤트 버스를 이용하여 하위 컴포넌트에서 상위 컴포넌트로 데이터 전달
-                    showLog: function () {
-                        eventBus.$emit('triggerEventBus', 100);
+    <script>
+        /*var Main = { template: '<div>main</div>'};
+        var Login = { template: '<div>login</div>'};
+
+        var routes = [
+            { path: '/main', component: Main},
+            { path: '/login', component: Login }
+        ];
+
+        var router = new VueRouter({
+            routes
+        });
+
+        var app = new Vue({
+            mode: 'history',
+            router
+        }).$mount('#app');*/
+
+        // ================================================
+        /*var User = {
+            template: '<div>User Component' +
+                '<router-view></router-view>' +
+                '</div>'
+        };
+
+        var UserProfile = { template: '<p>User Profile Component</p>' };
+        var UserPost = { template: '<p>User Post Component</p>' };
+
+        var routes = [
+            {
+                path: '/user',
+                component: User,
+                children: [
+                    {
+                        path: 'posts',
+                        component: UserPost
+                    },
+                    {
+                        path: 'profile',
+                        component: UserProfile
+                    }
+                ]
+            }
+        ];
+
+        var router = new VueRouter({
+            routes
+        });
+
+        var app2 = new Vue({
+            router
+        }).$mount('#app2');*/
+
+        // ==========================================================
+        var Body = { template: '<div>This is Body</div>' };
+        var Header = { template: '<div>This is Header</div>' };
+        var Footer = { template: '<div>This is Footer</div>' };
+
+        var LoginBody = { template: '<div>This is LoginBody</div>'};
+        var LoginHeader = { template: '<div>This is LoginHeader</div>' };
+        var LoginFooter = { template: '<div>This is LoginFooter</div>' };
+
+        var router = new VueRouter({
+            routes: [
+                {
+                    path: '/',
+                    components: {
+                        default: Body,
+                        header: Header,
+                        footer: Footer
+                    }
+                },
+                {
+                    path: '/login',
+                    components: {
+                        default: LoginBody,
+                        header: LoginHeader,
+                        footer: LoginFooter
                     }
                 }
-            })
+            ]
+        })
 
-            var cmp = {
-                // 컴포넌트 내용
-                template: '<div>지역 컴포넌트가 등록되었습니다!</div>'
-            }
+        var app3 = new Vue({
+            router
+        }).$mount('#app3');
 
-            var cmp2 = {
-                // 컴포넌트 내용
-                template: '<div>지역 컴포넌트가 등록되었습니다!</div>'
-            }
-
-            var cmp3 = {
-                template: '<button v-on:click="showLog">show</button>',
-                methods: {
-                    showLog: function () {
-                        this.$emit('show-log');
-                    }
+        // axios를 이용한 http 통신
+        new Vue({
+            el: '#app4',
+            methods: {
+                getData: function () {
+                    axios.get('https://raw.githubusercontent.com/joshua1988/doit-vuejs/master/data/demo.json')
+                         .then(function(response) {
+                             console.log(response);
+                         });
                 }
             }
+        });
 
-            // 상위 컴포넌트
-            new Vue({
-                el: '#app',
-                created: function() {
-                  eventBus.$on('triggerEventBus', function (value) {
-                      console.log("이벤트를 전달받음. 전달받은 값 : ", value);
-                  })
-                },
-                // 지역 컴포넌트 등록
-                components: {
-                    'my-local-component': cmp,
-                    'child-local-component': cmp3
-                },
-                data: {
-                  message: 'Hello Vue! passed from Parent Component'
-                },
-                methods: {
-                    printText: function () {
-                        console.log("received an event");
-                    }
-                }
-            })
-
-            new Vue({
-                el: '#app2',
-                components: {
-                    'my-local-component': cmp2
-                }
-            })
-        </script>
-    </body>
+    </script>
+</body>
 </html>
